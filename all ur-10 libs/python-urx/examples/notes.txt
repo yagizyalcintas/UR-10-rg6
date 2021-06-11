@@ -1,0 +1,4 @@
+-test_move her pozisyonda calismiyor.
+-simple.py her iki seferde bir calisiyor
+-grip "robot" argumani lazim dedi, robot objesini verince o hata olmadi ama calismadi
+-python 2 library leri bulamiyor python3 calisiyor
