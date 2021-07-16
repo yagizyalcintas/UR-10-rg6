@@ -75,7 +75,7 @@ Compatible Robots
 installing for Python3: 
 
 -pip3 install --user ur_rtde
-note: Make sure your pip version >=19.3, otherwise the install might fail.
+note: Make sure your pip version >=19.3, otherwise the install might fail. Also you may need to install git,cmake and wheel.
 
 Issues:
 -Servoj_example and speedj_example is risky for the robot making it hitting itself, I used a lower velocity,accaleration, longer sleep time to be more safe. Using Emergency button is crucial for testing this script.
