@@ -79,6 +79,7 @@ note: Make sure your pip version >=19.3, otherwise the install might fail. Also 
 
 Issues:
 -Servoj_example and speedj_example is risky for the robot making it hitting itself, I used a lower velocity,accaleration, longer sleep time to be more safe. Using Emergency button is crucial for testing this script.
+-move_until_contact.py is dont`t work and I get a "tool-contact is not supported in this machine" error on the control panel of UR-10.
 
 
 
