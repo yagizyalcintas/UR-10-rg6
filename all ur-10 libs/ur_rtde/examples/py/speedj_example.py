@@ -1,10 +1,10 @@
 from rtde_control import RTDEControlInterface as RTDEControl
 import time
 
-rtde_c = RTDEControl("172.16.1.222")
+rtde_c = RTDEControl("127.0.0.1")
 
 # Parameters
-acceleration = 0.1
+acceleration = 0.5
 dt = 1.0/500  # 2ms
 joint_q = [-1.54, -1.83, -2.28, -0.59, 1.60, 0.023]
 joint_speed = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

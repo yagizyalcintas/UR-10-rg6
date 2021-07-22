@@ -1,6 +1,6 @@
 from rtde_control import RTDEControlInterface as RTDEControl
 
-rtde_c = RTDEControl("172.16.1.222")
+rtde_c = RTDEControl("127.0.0.1")
 
 velocity = 0.5
 acceleration = 0.5

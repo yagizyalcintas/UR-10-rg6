@@ -4,9 +4,9 @@ import time
 rtde_c = RTDEControl("172.16.1.222")
 
 # Parameters
-velocity = 0.1
-acceleration = 0.1
-dt = 1.0/100  # 2ms
+velocity = 0.5
+acceleration = 0.5
+dt = 1.0/500  # 2ms
 lookahead_time = 0.1
 gain = 300
 joint_q = [-1.54, -1.83, -2.28, -0.59, 1.60, 0.023]
@@ -15,7 +15,7 @@ joint_q = [-1.54, -1.83, -2.28, -0.59, 1.60, 0.023]
 rtde_c.moveJ(joint_q)
 
 # Execute 500Hz control loop for 2 seconds, each cycle is 2ms
-for i in range(300):
+for i in range(1000):
     start = time.time()
     rtde_c.servoJ(joint_q, velocity, acceleration, dt, lookahead_time, gain)
     joint_q[0] += 0.001
