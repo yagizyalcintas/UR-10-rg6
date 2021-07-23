@@ -487,7 +487,7 @@ def get_td(HTTP_ip_address):
 				"title":"Close Grip",
 				"description":"Closes the grip",
 				"forms":[{
-					"href":"http://{}/ur10/actions/gripclose".format(HTTP_ip_address),
+					"href":"http://{}/ur10/actions/gripClose".format(HTTP_ip_address),
 					"contentType":"application/json",
 					"op":"invokeaction",
 					"htv:methodName":"POST"
@@ -499,7 +499,7 @@ def get_td(HTTP_ip_address):
 				"title":"Open Grip",
 				"description":"Opens the grip",
 				"forms":[{
-					"href":"http://{}/ur10/actions/gripopen".format(HTTP_ip_address),
+					"href":"http://{}/ur10/actions/gripOpen".format(HTTP_ip_address),
 					"contentType":"application/json",
 					"op":"invokeaction",
 					"htv:methodName":"POST"

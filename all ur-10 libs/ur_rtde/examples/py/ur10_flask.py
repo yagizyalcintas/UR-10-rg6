@@ -363,15 +363,80 @@ def goTo():
         print(new_q)
         rtde_c.moveL(new_q,DEFAULTSPEED,DEFAULTACCELERATION , False)
         TCPpose = rtde_r.getActualTCPPose()
+        TCPpose[0]= TCPpose[0]*1000
+        TCPpose[1]= TCPpose[1]*1000
+        TCPpose[2]= (TCPpose[2]-0.4)*1000
         return "new position values are: {}".format(TCPpose)
     else:
         return "Error 415"
         abort(415)  
 
-  
+
+@app.route("/ur10/actions/Move", methods=["POST"])
+def Move():
+    global DEFAULTACCELERATION
+    global DEFAULTSPEED
+    if request.is_json:
+        GoList = [None]*3
+        print(request.json)
+        print(type(request.json))
+
+        # schema = td["actions"]["turnBase"]["input"]
+        # valid_input = Draft6Validator(schema).is_valid(request.json)
+        for key in request.json.keys():
+            if key == "x" :
+                GoList[0] = request.json["x"]/1000 
+            elif key == "y":
+                GoList[1] = request.json["y"]/1000 
+            elif key == "z":
+                GoList[2] = request.json["z"]/1000 + 0.4
+            elif key == "s" and 0 < request.json["s"] <= 1:
+                DEFAULTSPEED = request.json["s"]
+            elif key == "a"and 0 < request.json["a"] <= 1:
+                DEFAULTACCELERATION = request.json["a"]
+
+
+        print(GoList)
+        rtde_c = RTDEControl("172.16.1.222")
+        rtde_r = RTDEReceive("172.16.1.222")
+        TCPpose = rtde_r.getActualTCPPose()
+        print(TCPpose)
+
+        for i in range (3):
+            if not GoList[i] == None:
+                TCPpose[i]+= GoList[i]
+            else:
+                pass  
+
+        new_q = TCPpose[:]
+        print(new_q)
+        rtde_c.moveL(new_q,DEFAULTSPEED,DEFAULTACCELERATION , False)
+        TCPpose = rtde_r.getActualTCPPose()
+        TCPpose[0]= TCPpose[0]*1000
+        TCPpose[1]= TCPpose[1]*1000
+        TCPpose[2]= (TCPpose[2]-0.4)*1000
+        return "new position values are: {}".format(TCPpose)
+    else:
+        return "Error 415"
+        abort(415) 
 
 
 
+@app.route("/ur10/actions/gripClose", methods=["POST"])
+def gripClose(): 
+
+    rtde_io_ = RTDEIO("172.16.1.222")
+    rtde_receive_ = RTDEReceive("172.16.1.222")
+    rtde_io_.setStandardDigitalOut(0, False)
+    return "", 204
+
+@app.route("/ur10/actions/gripOpen", methods=["POST"])
+def gripOpen(): 
+
+    rtde_io_ = RTDEIO("172.16.1.222")
+    rtde_receive_ = RTDEReceive("172.16.1.222")
+    rtde_io_.setStandardDigitalOut(0, True)
+    return "", 204
 
 ##################################33
 
