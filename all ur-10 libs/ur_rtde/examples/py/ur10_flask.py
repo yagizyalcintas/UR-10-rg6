@@ -6,13 +6,15 @@ import requests
 import socket
 import time
 import json
+import _thread
 
 
 from flask import Flask, request, abort,redirect, url_for,flash
 
 
-
-from jsonschema import Draft6Validator
+from jsonschema import validate
+# from jschon import JSON, JSONSchema
+# from pprint import pp
 from sys import exit
 
 
@@ -22,7 +24,8 @@ except ImportError:
     exit("This script requires the pillow module\nInstall with: sudo pip install pillow")
 
 # ---------------- CONFIG ----------------
-#TD_DIRECTORY_ADDRESS = "http://172.16.1.100:8080"
+TD_DIRECTORY_ADDRESS = "http://172.16.1.100:8080"
+LISTENING_PORT = 8080
 global DEFAULTSPEED
 DEFAULTSPEED = 0.5
 global DEFAULTACCELERATION
@@ -45,7 +48,7 @@ def homeloc():
     x = json.dumps(HOMELOCATION)
     print(type(json.dumps(HOMELOCATION)))
     print(json.dumps(HOMELOCATION))
-    return x , {'Content-Type': 'application/json'}
+    return x , 200, {'Content-Type': 'application/json'}
 
 
 @app.route("/ur10/properties/curLocation", methods=["GET"])
@@ -56,7 +59,7 @@ def curLocation():
     TCPpose[0]= TCPpose[0]*1000
     TCPpose[1]= TCPpose[1]*1000
     TCPpose[2]= (TCPpose[2]-0.4)*1000
-    return json.dumps(TCPpose), {'Content-Type': 'application/json'}
+    return json.dumps(TCPpose), 200, {'Content-Type': 'application/json'}
 
 @app.route("/ur10/properties/curJointPos", methods=["GET"])
 def curJointPos():
@@ -65,7 +68,7 @@ def curJointPos():
     init_q = rtde_r.getActualQ()
     for i in range (6):
         init_q[i]= init_q[i]*57.29
-    return json.dumps(init_q), {'Content-Type': 'application/json'}
+    return json.dumps(init_q), 200, {'Content-Type': 'application/json'}
 
 
 @app.route("/ur10/properties/moveSpeed", methods=["GET","PUT"])
@@ -73,16 +76,22 @@ def speed():
     global DEFAULTSPEED
     if request.method == "PUT":
         if request.is_json:
-            print((request.json))
-            if type(request.json) == float and 0 <= request.json <= 1:
+
+            print(request.json)
+            schema = td["properties"]["moveSpeed"]
+            try:
+                validate(instance=request.json, schema=schema)
                 DEFAULTSPEED = request.json
-                return "new default speed is {}".format(DEFAULTSPEED)
-            else:
+                return "new default speed is {}".format(DEFAULTSPEED), 200, {'Content-Type': 'application/json'}
+            except:
+                return "wrong input"
                 abort(400)
+
+
         else:
             abort(415)
     else:
-        return json.dumps(DEFAULTSPEED), {'Content-Type': 'application/json'}
+        return json.dumps(DEFAULTSPEED), 200, {'Content-Type': 'application/json'}
 
 @app.route("/ur10/properties/moveAcceleration", methods=["GET","PUT"])
 def acceleration():
@@ -90,15 +99,20 @@ def acceleration():
     if request.method == "PUT":
         if request.is_json:
             print((request.json))
-            if type(request.json) == float and 0 <= request.json <= 1:
+            schema = td["properties"]["moveAcceleration"]
+            try:
+                validate(instance=request.json, schema=schema)
                 DEFAULTACCELERATION = request.json
-                return "new default acceleration is {}".format(DEFAULTACCELERATION)
-            else:
+                return "new default acceleration is {}".format(DEFAULTACCELERATION), 200, {'Content-Type': 'application/json'}
+            except:
+                return "wrong input"
                 abort(400)
+
+
         else:
             abort(415)
     else:
-        return json.dumps(DEFAULTACCELERATION), {'Content-Type': 'application/json'}
+        return json.dumps(DEFAULTACCELERATION), 200, {'Content-Type': 'application/json'}
 
 
 @app.route("/ur10/actions/goHome", methods=["POST"])
@@ -124,22 +138,22 @@ def goHome():
 def turnBase():
 
     if request.is_json:
-        # schema = td["actions"]["turnBase"]["input"]
-        # valid_input = Draft6Validator(schema).is_valid(request.json)
-        degree = request.json["base"]
-        
-        if type(degree) == float and -360 < degree and degree < 360: #valid_input
-            print((type(degree)))
-            rtde_c = RTDEControl("172.16.1.222")
-            rtde_r = RTDEReceive("172.16.1.222")
-            init_q = rtde_r.getActualQ()
-            new_q = init_q[:]
-            new_q[0] += degree/57.29
-            rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
-            return "new base degree is: {}".format(new_q[0]) 
-        else:
-            return "input out of bound"
+
+        schema = td["actions"]["turnBase"]["input"]
+        try:
+            validate(instance=request.json, schema=schema)
+        except:
+            return "wrong input"
             abort(400)
+
+        degree = request.json["base"]
+        rtde_c = RTDEControl("172.16.1.222")
+        rtde_r = RTDEReceive("172.16.1.222")
+        init_q = rtde_r.getActualQ()
+        new_q = init_q[:]
+        new_q[0] += degree/57.29
+        rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
+        return "", 204 
 
     else:
         return "Error 415"
@@ -153,20 +167,24 @@ def turnShoulder():
     if request.is_json:
         # schema = td["actions"]["turnBase"]["input"]
         # valid_input = Draft6Validator(schema).is_valid(request.json)
-        degree = request.json["shoulder"]
-        
-        if type(degree) == float and -360 < degree and degree < 360: #valid_input
-            print(degree)
-            rtde_c = RTDEControl("172.16.1.222")
-            rtde_r = RTDEReceive("172.16.1.222")
-            init_q = rtde_r.getActualQ()
-            new_q = init_q[:]
-            new_q[1] += degree/57.29
-            rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
-            return "new shoulder degree is: {}".format(new_q[1]) 
-        else:
-            return "input out of bound"
+ 
+        schema = td["actions"]["turnShoulder"]["input"]
+        try:
+            validate(instance=request.json, schema=schema)
+        except:
+            return "wrong input"
             abort(400)
+
+        
+        degree = request.json["shoulder"]
+        rtde_c = RTDEControl("172.16.1.222")
+        rtde_r = RTDEReceive("172.16.1.222")
+        init_q = rtde_r.getActualQ()
+        new_q = init_q[:]
+        new_q[1] += degree/57.29
+        rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
+        return "", 204 
+
 
     else:
         return "Error 415"
@@ -179,20 +197,25 @@ def turnElbow():
     if request.is_json:
         # schema = td["actions"]["turnBase"]["input"]
         # valid_input = Draft6Validator(schema).is_valid(request.json)
-        degree = request.json["elbow"]
-        
-        if type(degree) == float and -360 < degree and degree < 360: #valid_input
-            print((type(degree)))
-            rtde_c = RTDEControl("172.16.1.222")
-            rtde_r = RTDEReceive("172.16.1.222")
-            init_q = rtde_r.getActualQ()
-            new_q = init_q[:]
-            new_q[2] += degree/57.29
-            rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
-            return "new elbow degree is: {}".format(new_q[2]) 
-        else:
-            return "input out of bound"
+
+        schema = td["actions"]["turnElbow"]["input"]
+        try:
+            validate(instance=request.json, schema=schema)
+        except:
+            return "wrong input"
             abort(400)
+
+
+
+        degree = request.json["elbow"]
+        print((type(degree)))
+        rtde_c = RTDEControl("172.16.1.222")
+        rtde_r = RTDEReceive("172.16.1.222")
+        init_q = rtde_r.getActualQ()
+        new_q = init_q[:]
+        new_q[2] += degree/57.29
+        rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
+        return "", 204 
 
     else:
         return "Error 415"
@@ -205,20 +228,24 @@ def turnWrist1():
     if request.is_json:
         # schema = td["actions"]["turnBase"]["input"]
         # valid_input = Draft6Validator(schema).is_valid(request.json)
-        degree = request.json["wrist1"]
         
-        if type(degree) == float and -360 < degree and degree < 360: #valid_input
-            print((type(degree)))
-            rtde_c = RTDEControl("172.16.1.222")
-            rtde_r = RTDEReceive("172.16.1.222")
-            init_q = rtde_r.getActualQ()
-            new_q = init_q[:]
-            new_q[3] += degree/57.29
-            rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
-            return "new wrist1 degree is: {}".format(new_q[3]) 
-        else:
-            return "input out of bound"
+        schema = td["actions"]["turnWrist1"]["input"]
+        try:
+            validate(instance=request.json, schema=schema)
+        except:
+            return "wrong input"
             abort(400)
+
+
+        degree = request.json["wrist1"]
+        print((type(degree)))
+        rtde_c = RTDEControl("172.16.1.222")
+        rtde_r = RTDEReceive("172.16.1.222")
+        init_q = rtde_r.getActualQ()
+        new_q = init_q[:]
+        new_q[3] += degree/57.29
+        rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
+        return "", 204 
 
     else:
         return "Error 415"
@@ -231,20 +258,25 @@ def turnWrist2():
     if request.is_json:
         # schema = td["actions"]["turnBase"]["input"]
         # valid_input = Draft6Validator(schema).is_valid(request.json)
-        degree = request.json["wrist2"]
         
-        if type(degree) == float and -360 < degree and degree < 360: #valid_input
-            print((type(degree)))
-            rtde_c = RTDEControl("172.16.1.222")
-            rtde_r = RTDEReceive("172.16.1.222")
-            init_q = rtde_r.getActualQ()
-            new_q = init_q[:]
-            new_q[4] += degree/57.29
-            rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
-            return "new wrist2 degree is: {}".format(new_q[4]) 
-        else:
-            return "input out of bound"
+        schema = td["actions"]["turnWrist2"]["input"]
+        try:
+            validate(instance=request.json, schema=schema)
+        except:
+            return "wrong input"
             abort(400)
+
+
+        degree = request.json["wrist2"]
+        print((type(degree)))
+        rtde_c = RTDEControl("172.16.1.222")
+        rtde_r = RTDEReceive("172.16.1.222")
+        init_q = rtde_r.getActualQ()
+        new_q = init_q[:]
+        new_q[4] += degree/57.29
+        rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
+        return "", 204 
+
 
     else:
         return "Error 415"
@@ -255,22 +287,30 @@ def turnWrist2():
 def turnWrist3():
 
     if request.is_json:
-        # schema = td["actions"]["turnBase"]["input"]
+        #schema = td["actions"]["turnWrist3"]["input"]
         # valid_input = Draft6Validator(schema).is_valid(request.json)
-        degree = request.json["wrist3"]
-        
-        if type(degree) == float and -360 < degree and degree < 360: #valid_input
-            print((type(degree)))
-            rtde_c = RTDEControl("172.16.1.222")
-            rtde_r = RTDEReceive("172.16.1.222")
-            init_q = rtde_r.getActualQ()
-            new_q = init_q[:]
-            new_q[5] += degree/57.29
-            rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
-            return "new wrist3 degree is: {}".format(new_q[5]) 
-        else:
-            return "input out of bound"
+        print(request.json)
+        schema = td["actions"]["turnWrist3"]["input"]
+        try:
+            v = validate(instance=request.json, schema=schema)
+            print(v)
+            if jsonschema.exceptions.ValidationError:
+                return "got in heeeere"
+        except:
+            return "wrong input"
             abort(400)
+
+
+        degree = request.json["wrist3"]
+        print((type(degree)))
+        rtde_c = RTDEControl("172.16.1.222")
+        rtde_r = RTDEReceive("172.16.1.222")
+        init_q = rtde_r.getActualQ()
+        new_q = init_q[:]
+        new_q[5] += degree/57.29
+        rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
+        return "", 204 
+
 
     else:
         return "Error 415"
@@ -279,44 +319,52 @@ def turnWrist3():
 #and type(value)== float and -360<value<360
 @app.route("/ur10/actions/SetJointDegrees", methods=["POST"])
 def SetJointDegrees():
-
+    print(request.json)
     if request.is_json:
+        print(request.json)
         jointList = [None]*6
         print(request.json)
-        print(type(request.json))
 
-        # schema = td["actions"]["turnBase"]["input"]
-        # valid_input = Draft6Validator(schema).is_valid(request.json)
-        for key in request.json.keys():
-            if key == "base" :
-                jointList[0] = request.json["base"]/57.29
-            elif key == "shoulder":
-                jointList[1] = request.json["shoulder"]/57.29
-            elif key == "elbow":
-                jointList[2] = request.json["elbow"]/57.29
-            elif key == "wrist1":
-                jointList[3] = request.json["wrist1"]/57.29
-            elif key == "wrist2":
-                jointList[4] = request.json["wrist2"]/57.29
-            elif key == "wrist3":
-                jointList[5] = request.json["wrist3"]/57.29
+        schema = td["actions"]["SetJointDegrees"]["input"]
+        try:
+            validate(instance=request.json, schema=schema)
+            for key in request.json.keys():
+                if key == "base" :
+                    jointList[0] = request.json["base"]/57.29
+                elif key == "shoulder":
+                    jointList[1] = request.json["shoulder"]/57.29
+                elif key == "elbow":
+                    jointList[2] = request.json["elbow"]/57.29
+                elif key == "wrist1":
+                    jointList[3] = request.json["wrist1"]/57.29
+                elif key == "wrist2":
+                    jointList[4] = request.json["wrist2"]/57.29
+                elif key == "wrist3":
+                    jointList[5] = request.json["wrist3"]/57.29
 
-        print(jointList)
-        rtde_c = RTDEControl("172.16.1.222")
-        rtde_r = RTDEReceive("172.16.1.222")
-        init_q = rtde_r.getActualQ()
-        print(init_q)
+            print(jointList)
+            rtde_c = RTDEControl("172.16.1.222")
+            rtde_r = RTDEReceive("172.16.1.222")
+            init_q = rtde_r.getActualQ()
+            print(init_q)
 
-        for i in range (6):
-            if not jointList[i] == None:
-                init_q[i]=jointList[i]
-            else:
-                pass  
+            for i in range (6):
+                if not jointList[i] == None:
+                    init_q[i]=jointList[i]
+                else:
+                    pass  
 
-        new_q = init_q[:]
-        print(new_q)
-        rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
-        return "new joint degree values are: {}".format(new_q)
+            new_q = init_q[:]
+            print(new_q)
+            rtde_c.moveJ(new_q, DEFAULTSPEED, DEFAULTACCELERATION, False)
+            return "", 204 
+        except Exception as e:
+            print(e)
+            return "wrong input"
+            abort(400)
+
+
+        
     else:
         return "Error 415"
         abort(415)  
@@ -332,8 +380,14 @@ def goTo():
         print(request.json)
         print(type(request.json))
 
-        # schema = td["actions"]["turnBase"]["input"]
-        # valid_input = Draft6Validator(schema).is_valid(request.json)
+        schema = td["actions"]["goTo"]["input"]
+        try:
+            validate(instance=request.json, schema=schema)
+        except:
+            return "wrong input"
+            abort(400)
+
+
         for key in request.json.keys():
             if key == "x" :
                 GoList[0] = request.json["x"]/1000 
@@ -366,7 +420,7 @@ def goTo():
         TCPpose[0]= TCPpose[0]*1000
         TCPpose[1]= TCPpose[1]*1000
         TCPpose[2]= (TCPpose[2]-0.4)*1000
-        return "new position values are: {}".format(TCPpose)
+        return "", 204 
     else:
         return "Error 415"
         abort(415)  
@@ -381,8 +435,14 @@ def Move():
         print(request.json)
         print(type(request.json))
 
-        # schema = td["actions"]["turnBase"]["input"]
-        # valid_input = Draft6Validator(schema).is_valid(request.json)
+        schema = td["actions"]["Move"]["input"]
+        try:
+            validate(instance=request.json, schema=schema)
+        except:
+            return "wrong input"
+            abort(400)
+
+
         for key in request.json.keys():
             if key == "x" :
                 GoList[0] = request.json["x"]/1000 
@@ -415,7 +475,7 @@ def Move():
         TCPpose[0]= TCPpose[0]*1000
         TCPpose[1]= TCPpose[1]*1000
         TCPpose[2]= (TCPpose[2]-0.4)*1000
-        return "new position values are: {}".format(TCPpose)
+        return "", 204 
     else:
         return "Error 415"
         abort(415) 
@@ -428,6 +488,18 @@ def gripClose():
     rtde_io_ = RTDEIO("172.16.1.222")
     rtde_receive_ = RTDEReceive("172.16.1.222")
     rtde_io_.setStandardDigitalOut(0, False)
+    rtde_io_.setStandardDigitalOut(1, True)
+    rtde_io_.setStandardDigitalOut(3, False)
+    return "", 204
+
+@app.route("/ur10/actions/gripCloseLight", methods=["POST"])
+def gripCloseLight(): 
+
+    rtde_io_ = RTDEIO("172.16.1.222")
+    rtde_receive_ = RTDEReceive("172.16.1.222")
+    rtde_io_.setStandardDigitalOut(0, False)
+    rtde_io_.setStandardDigitalOut(1, False)
+    rtde_io_.setStandardDigitalOut(3, True)
     return "", 204
 
 @app.route("/ur10/actions/gripOpen", methods=["POST"])
@@ -436,26 +508,96 @@ def gripOpen():
     rtde_io_ = RTDEIO("172.16.1.222")
     rtde_receive_ = RTDEReceive("172.16.1.222")
     rtde_io_.setStandardDigitalOut(0, True)
+    rtde_io_.setStandardDigitalOut(1, False)
+    rtde_io_.setStandardDigitalOut(3, False)
     return "", 204
 
 ##################################33
 
+def submit_td(ip_addr, tdd_address):
+    global td 
+    td = get_td(ip_addr)
+    print("Uploading TD to directory ...")
+    while True:
+        try:
+            r = requests.post("{}/td".format(tdd_address), json=td)
+            r.close()
+            print("Got response: ", r.status_code)
+            if 200 <= r.status_code <= 299:
+                print("TD uploaded!")
+                return
+            else:
+                #print("TD could not be uploaded. Will try again in 15 Seconds...")
+                time.sleep(45)
+        except Exception as e:
+            #print(e)
+            #print("TD could not be uploaded. Will try again in 15 Seconds...")
+            time.sleep(45)
+
+
+
+    dur = 7
+    count = 0
+    while count < dur*(10):
+        scrollphathd.clear()
+
+        float_sec = (time.time() % 60) / 59.0
+        seconds_progress = float_sec * 15
+
+        if DISPLAY_BAR:
+        # Step through 15 pixels to draw the seconds bar
+            for y in range(15):
+
+                current_pixel = min(seconds_progress, 1)
+                scrollphathd.set_pixel(y + 1, 6, current_pixel * BRIGHTNESS)
+                seconds_progress -= 1
+
+            
+                if seconds_progress <= 0:
+                    break
+
+        else:
+        # Just display a simple dot
+            scrollphathd.set_pixel(int(seconds_progress), 6, BRIGHTNESS)
+
+    # Display the time (HH:MM) in a 5x5 pixel font
+        scrollphathd.write_string(
+            time.strftime("%H:%M"),
+            x=0,               
+            y=0,                  
+            font=font5x5,          
+            brightness=0.3  
+        )
+
+        if int(time.time()) % 2 == 0:
+            scrollphathd.clear_rect(8, 0, 1, 5)
+
+        scrollphathd.show()
+        scrollphathd.flip(x=True, y=True)
+        time.sleep(0.1)
+        count = count + 1
+    
+    return "", 204
+    scrollphathd.clear()
+    scrollphathd.show()
+
+
 
 # wait for Wifi to connect
-# s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# while True:
-#     try:
-#         # connect to router to ensure a successful connection
-#         s.connect(('172.16.1.1', 80))
-#         ip_addr = s.getsockname()[0] + ":" + str(8080)
-#         print(ip_addr)
-#         break
-#     except OSError:
-#         time.sleep(5)
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+while True:
+    try:
+        # connect to router to ensure a successful connection
+        s.connect(('172.16.1.1', 80))
+        ip_addr = s.getsockname()[0] + ":" + str(LISTENING_PORT)
+        print(ip_addr)
+        break
+    except OSError:
+        time.sleep(5)
 
-
-
+# Submit TD to directory
+_thread.start_new_thread(submit_td, (ip_addr, TD_DIRECTORY_ADDRESS))
 
 # Run app server
 app.run(host='0.0.0.0', port=8080)

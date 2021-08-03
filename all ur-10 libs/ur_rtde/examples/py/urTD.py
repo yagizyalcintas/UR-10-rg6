@@ -195,9 +195,7 @@ def get_td(HTTP_ip_address):
 						}
 					}
 	    		},
-				"output":{
-					"type":"string"
-				},
+
 				"forms":[{
 					"href":"http://{}/ur10/actions/turnBase".format(HTTP_ip_address),
 					"contentType":"application/json",
@@ -222,9 +220,7 @@ def get_td(HTTP_ip_address):
 						}
 					}
 	    		},
-				"output":{
-					"type":"string"
-				},
+
 				"forms":[{
 					"href":"http://{}/ur10/actions/turnShoulder".format(HTTP_ip_address),
 					"contentType":"application/json",
@@ -249,9 +245,7 @@ def get_td(HTTP_ip_address):
 						}
 					}
 	    		},
-				"output":{
-					"type":"string"
-				},
+
 				"forms":[{
 					"href":"http://{}/ur10/actions/turnElbow".format(HTTP_ip_address),
 					"contentType":"application/json",
@@ -276,9 +270,7 @@ def get_td(HTTP_ip_address):
 						}
 					}
 	    		},
-				"output":{
-					"type":"string"
-				},
+
 				"forms":[{
 					"href":"http://{}/ur10/actions/turnWrist1".format(HTTP_ip_address),
 					"contentType":"application/json",
@@ -302,9 +294,7 @@ def get_td(HTTP_ip_address):
 						}
 					}
 	    		},
-				"output":{
-					"type":"string"
-				},
+
 				"forms":[{
 					"href":"http://{}/ur10/actions/turnWrist2".format(HTTP_ip_address),
 					"contentType":"application/json",
@@ -329,9 +319,7 @@ def get_td(HTTP_ip_address):
 						}
 					}
 	    		},
-				"output":{
-					"type":"string"
-				},
+
 				"forms":[{
 					"href":"http://{}/ur10/actions/turnWrist3".format(HTTP_ip_address),
 					"contentType":"application/json",
@@ -377,9 +365,6 @@ def get_td(HTTP_ip_address):
 							"minimum": -360,
 							"maximum": 360
 						}
-					},
-					"output":{
-						"type":"string"
 					}
 	    		},
 				"forms":[{
@@ -416,13 +401,13 @@ def get_td(HTTP_ip_address):
 						},
 						"s": {
 							"type": "number",
-							"minimum": 1,
-							"maximum": 100
+							"minimum": 0.1,
+							"maximum": 1.0
 						},
 						"a": {
 							"type": "number",
-							"minimum": 1,
-							"maximum": 100
+							"minimum": 0.1,
+							"maximum": 1.0
 						}
 					}
 	    		},
@@ -460,19 +445,16 @@ def get_td(HTTP_ip_address):
 						},
 						"s": {
 							"type": "number",
-							"minimum": 1,
-							"maximum": 100
+							"minimum": 0.1,
+							"maximum": 1.0
 						},
 						"a": {
 							"type": "number",
-							"minimum": 1,
-							"maximum": 100
+							"minimum": 0.1,
+							"maximum": 1.0
 						}
 					}
 	    		},
-				"output":{
-					"type":"string"
-				},
 				"forms":[{
 					"href":"http://{}/ur10/actions/move".format(HTTP_ip_address),
 					"contentType":"application/json",
@@ -485,7 +467,7 @@ def get_td(HTTP_ip_address):
 
 			"gripClose":{
 				"title":"Close Grip",
-				"description":"Closes the grip",
+				"description":"Closes the grip with 120 Newton of force",
 				"forms":[{
 					"href":"http://{}/ur10/actions/gripClose".format(HTTP_ip_address),
 					"contentType":"application/json",
@@ -495,9 +477,21 @@ def get_td(HTTP_ip_address):
 				"idempotent": True,
 				"safe": False
 			},
+			"gripCloseLight":{
+				"title":"Close Grip",
+				"description":"Closes the grip with 25 Newton of force",
+				"forms":[{
+					"href":"http://{}/ur10/actions/gripCloseLight".format(HTTP_ip_address),
+					"contentType":"application/json",
+					"op":"invokeaction",
+					"htv:methodName":"POST"
+				}],
+				"idempotent": True,
+				"safe": False
+			},
 			"gripOpen":{
 				"title":"Open Grip",
-				"description":"Opens the grip",
+				"description":"Opens the grip with 120 Newton of force",
 				"forms":[{
 					"href":"http://{}/ur10/actions/gripOpen".format(HTTP_ip_address),
 					"contentType":"application/json",
