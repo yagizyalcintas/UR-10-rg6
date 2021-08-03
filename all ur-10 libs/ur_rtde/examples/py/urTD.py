@@ -68,8 +68,8 @@ def get_td(HTTP_ip_address):
 						},
 	    			"z":{
 						"type":"integer",
-						"minimum": -1000,
-						"maximum": 1000
+						"minimum": -1300,
+						"maximum": 1300
 						}
 	    		},
 				"forms": [
