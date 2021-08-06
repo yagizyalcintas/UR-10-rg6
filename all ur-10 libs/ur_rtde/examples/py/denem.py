@@ -1,30 +1,40 @@
-global HOMELOCATION
-HOMELOCATION = {"x": 00.55, "y": -490 , "z":1026, "base":0.00,"shoulder":-90,"elbow":0.00,"wrist1":-90.00,"wrist2":0.00,"wrist3":0.00}
+import json
+
+with open("TM.json", "r") as f:
+    tm_dict = json.load(f)
+
+with open("config.json", "r") as f:
+    config = json.load(f)
+
+tm_string = json.dumps(tm_dict)
+config_string = json.dumps(config)
+
+keyList = []
+
+for (key,value) in config.items():
+    key_str = key
+    key_str = "{{" + key_str + "}}"
+    keyList.append(key_str)
+   
+    print(key_str)
+#print(config)
+#print(keyList)
 
 
-def listfun():
-    list1 = []
-    global HOMELOCATION
-    for key, value in  HOMELOCATION.items():
-        list1.append(value)
-    print(list1)
-    jointPoslist = []
-    for i in range (6):
-        jointPoslist.append(list1[i+3])
-    print(jointPoslist)
+dictionary_items = config.items()
+sorted_items = sorted(dictionary_items)
 
-    # global HOMELOCATION
-    # keys_list[6] = list(HOMELOCATION)
-    # print(keys_list)
-    # key = keys_list[0]
+for i in range(len(sorted_items)):
+     sorted_items[i]
+
+di = dict(sorted_items)
+print(sorted_items)
+
+# for key, value in config.items():
+#     #tm_string = tm_string.replace("{{HTTP_IP_ADDRESS}}", "2222222")
+#     tm_string = tm_string.replace('"{}"'.format(key), str(value)) #backslah bak
+#     tm_string = tm_string.replace(key, str(value))
 
 
-
-#     global HOMELOCATION
-#     homeJoints = []
-
-#     for i in range (5):
-#         homeJoints[i] = list(HOMELOCATION.values()).index(3)
-#     print(homeJoints)
-
-listfun()
+tm_modified_dict = json.loads(tm_string)
+#print(tm_modified_dict)
