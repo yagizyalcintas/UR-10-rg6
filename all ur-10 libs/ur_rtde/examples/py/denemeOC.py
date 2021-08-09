@@ -68,7 +68,7 @@ for key in tm_modified_dict["properties"]:
 					}
 				]
 with open('convertedTD.json', 'w') as file:
-     file.write(json.dumps(tm_modified_dict, indent=1, sort_keys=True))   
+     file.write(json.dumps(tm_modified_dict, indent=4, sort_keys=True))   
 
 
-print(json.dumps(tm_modified_dict, indent=1, sort_keys=True))
+print(json.dumps(tm_modified_dict, indent=4, sort_keys=True))

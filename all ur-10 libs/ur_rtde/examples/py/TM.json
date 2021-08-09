@@ -39,7 +39,8 @@
                 "wrist3":{
                     "type":"number"
                 }
-            }
+            },
+            "readOnly": true
         },
         "curLocation":{
             "title":"Location",
@@ -62,7 +63,8 @@
                     "minimum": "{{MIN_Z}}",
                     "maximum": "{{MAX_Z}}"
                     }
-            }
+            },
+            "readOnly": true
         },
         "curJointPos":{
             "title":"Current Joint Position",
@@ -100,7 +102,8 @@
                     "minimum": "{{MIN_WRIST3_DEGREE}}",
                     "maximum": "{{MAX_WRIST3_DEGREE}}"
                 }
-            }
+            },
+            "readOnly": true
 
         },
         "moveSpeed":{
@@ -108,7 +111,9 @@
             "description": "Its value sets the moving speed of all UR-10 robot arm joints, default value is 0.5 but can be changed",
             "type": "number",
             "minimum": 0.1, 
-            "maximum": 1.0
+            "maximum": 1.0,
+            "readOnly": false,
+            "writeOnly": false
 
         },
         "moveAcceleration":{
@@ -116,7 +121,9 @@
             "description": "Its value sets the moving acceleration of all UR-10 robot arm joints, default value is 0.5 but can be changed",
             "type": "number",
             "minimum": 0.1, 
-            "maximum": 1.0
+            "maximum": 1.0,
+            "readOnly": false,
+            "writeOnly": false
 
         }
     },
@@ -245,7 +252,7 @@
             "idempotent": false,
             "safe": false
         },
-        "SetJointDegrees":{
+        "setJointDegrees":{
             "title":"Set the joint positions ",
             "description":"Turn the robot arm joints to a specific degree",
             "input":{
@@ -327,7 +334,7 @@
             "safe": false
         },
         
-        "Move":{
+        "move":{
             "title":"Move in a certain direction from current location",
             "description":"Move in a direction from current location in cartesian coordinates (x,y,z) with the assigned speed and acceleration, default values are .... ", 
             "input":{

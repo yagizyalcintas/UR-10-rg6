@@ -48,7 +48,8 @@ def get_td(HTTP_ip_address):
 					"op": ["readproperty"],
 					"contentType":"application/json"
 					}
-				]
+				],
+				"readOnly": True
 	    	},
 			"curLocation":{
 	    		"title":"Location",
@@ -73,11 +74,12 @@ def get_td(HTTP_ip_address):
 						}
 	    		},
 				"forms": [
-					{"href": "http://{}/ur10/properties/location".format(HTTP_ip_address),
+					{"href": "http://{}/ur10/properties/curLocation".format(HTTP_ip_address),
 					"op": ["readproperty"],
 					"contentType":"application/json"
 					}
-				]
+				],
+				"readOnly": True
 	    	},
 			"curJointPos":{
 	    		"title":"Current Joint Position",
@@ -117,11 +119,12 @@ def get_td(HTTP_ip_address):
 					}
 	    		},
 				"forms": [
-					{"href": "http://{}/ur10/properties/location".format(HTTP_ip_address),
+					{"href": "http://{}/ur10/properties/curJointPos".format(HTTP_ip_address),
 					"op": ["readproperty"],
 					"contentType":"application/json"
 					}
-				]
+				],
+				"readOnly": True
 	    	},
             "moveSpeed":{
                 "title":"Speed",
@@ -142,7 +145,9 @@ def get_td(HTTP_ip_address):
 					"contentType":"application/json",
 					"security": "nosec_sc"
 					}
-				]
+				],
+				"readOnly": False,
+				"writeOnly": False
             },
 			"moveAcceleration":{
                 "title":"Acceleration",
@@ -163,7 +168,9 @@ def get_td(HTTP_ip_address):
 					"contentType":"application/json",
 					"security": "nosec_sc"
 					}
-				]
+				],
+				"readOnly": False,
+				"writeOnly": False
             }
 	    },
 	
@@ -329,7 +336,7 @@ def get_td(HTTP_ip_address):
 				"idempotent": False,
 				"safe": False
 			},
-			"SetJointDegrees":{
+			"setJointDegrees":{
 				"title":"Set the joint positions ",
 				"description":"Turn the robot arm joints to a specific degree",
 				"input":{
@@ -421,7 +428,7 @@ def get_td(HTTP_ip_address):
 				"safe": False
 			},
 			
-			"Move":{
+			"move":{
 				"title":"Move in a certain direction from current location",
 				"description":"Move in a direction from current location in cartesian coordinates (x,y,z) with the assigned speed and acceleration, default values are .... ", ####### fixed speed i dusun
 				"input":{

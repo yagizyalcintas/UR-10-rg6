@@ -38,3 +38,9 @@ print(sorted_items)
 
 tm_modified_dict = json.loads(tm_string)
 #print(tm_modified_dict)
+
+for key,value in config.items():
+    key_str = str(key)
+    key_str = "{{" + key_str + "}}"
+    keyList.append(key_str)
+    config[keyList(-1)] = config.pop(key)
